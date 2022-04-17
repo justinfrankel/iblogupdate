@@ -13,6 +13,7 @@
   NSMutableArray *m_uploadnames, *m_uploaddata;
   NSString *m_desturl, *m_destuser, *m_destpass;
   NSInteger m_maxx, m_maxy;
+  int m_vidq; // 1=medium, 2=low
   float m_jpgq;
 }
 

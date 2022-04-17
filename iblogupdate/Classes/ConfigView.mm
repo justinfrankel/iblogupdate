@@ -39,8 +39,12 @@
     mkedit(self,'y',  w-3-100, ypos, 100,lh,[NSString stringWithFormat:@"%d",(int)par->m_maxy]);
 
     ypos += lh+3;
-    mklabel(self, 0,xo,ypos,200,lh-3, @"Quality (0.1-1.0):");
+    mklabel(self, 0,xo,ypos,200,lh-3, @"Image Qual (0.1-1.0):");
     mkedit(self, 'q',w-3-100,ypos,100,lh, [NSString stringWithFormat:@"%.2f",par->m_jpgq]);
+
+    ypos += lh+3;
+    mklabel(self, 0,xo, ypos,200,lh-3, @"Video QualRed (0-2):");
+    mkedit(self, 'v', w-3-100, ypos,100,lh, [NSString stringWithFormat:@"%d",par->m_vidq]);
   }
   return self;
 }
@@ -74,7 +78,8 @@
   if (f) par->m_maxy = [f.text integerValue];
   f = (UITextField *)[self viewWithTag:'q'];
   if (f) par->m_jpgq = [f.text floatValue];
-  
+  f = (UITextField *)[self viewWithTag:'v'];
+  if (f) par->m_vidq = (int)[f.text integerValue];
 }
 
 -(void)dealloc

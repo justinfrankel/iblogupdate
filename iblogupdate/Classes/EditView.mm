@@ -102,8 +102,11 @@
   }
 }
 
--(void)setImage:(ImageFieldRec *)image
+-(void)setImage:(ImageFieldRec *)image video:(NSURL*)url
 {
+  [url retain];
+  [m_curVideo release];
+  m_curVideo = url;
   [image retain];
   [m_curImage release];
   m_curImage=image;
@@ -117,10 +120,15 @@
 {
   return m_curImage && [m_curImage getImage];
 }
+-(BOOL)isVideo
+{
+  return m_curVideo != nil;
+}
 
 -(id)getObjectData
 {
   if (m_curImage) return m_curImage;
+  if (m_curVideo) return m_curVideo;
   UITextField *f = (UITextField*)[self viewWithTag:1002];
   return f ? f.text : nil;
 }

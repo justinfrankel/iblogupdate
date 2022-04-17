@@ -5,11 +5,13 @@
 @interface EditView : UIView {
 
   ImageFieldRec *m_curImage;
+  NSURL *m_curVideo;
 }
 
 -(id) initWithName:(NSString*)name data:(id)obj;
 -(BOOL)isImage;
--(void)setImage:(ImageFieldRec *)image;
+-(BOOL)isVideo;
+-(void)setImage:(ImageFieldRec *)image video:(NSURL *)url;
 -(id)getObjectData;
 -(NSString *)getFieldName;
 - (void)drawRect:(CGRect)rect;

@@ -45,6 +45,7 @@ bool g_want_guide_lines=YES;
   if (m_maxy < 4) m_maxy=600;
   m_jpgq = [def floatForKey:@"jpgq"];
   if (!m_jpgq) m_jpgq = 0.95;
+  m_vidq = (int)[def integerForKey:@"vq"];
   
   if (!m_uploaddata || !m_uploadnames || [m_uploaddata count] != [m_uploadnames count])
   {
@@ -94,7 +95,7 @@ bool g_want_guide_lines=YES;
   [def setInteger:m_maxy forKey:@"maxy"];
   [def setFloat:m_jpgq forKey:@"jpgq"];
   [def setBool:g_want_guide_lines forKey:@"glines"];
-  
+  [def setInteger:m_vidq  forKey:@"vq"];
   [def synchronize];
 }
 
@@ -120,6 +121,16 @@ bool g_want_guide_lines=YES;
       {
         char buf2[1024];
         snprintf(buf2,sizeof(buf2),"%.500s.jpg",nmptr);
+        JNL_HTTP_POST_File(&g_upload,nmptr,buf2,[d bytes],(int)[d length]);
+      }
+    }
+    else if ([r isKindOfClass:[NSURL class]])
+    {
+      NSData *d = [NSData dataWithContentsOfURL:(NSURL *)r];
+      if (d)
+      {
+        char buf2[1024];
+        snprintf(buf2,sizeof(buf2),"%.500s.mp4",nmptr);
         JNL_HTTP_POST_File(&g_upload,nmptr,buf2,[d bytes],(int)[d length]);
       }
     }

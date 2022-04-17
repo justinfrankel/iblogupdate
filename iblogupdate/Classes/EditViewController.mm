@@ -9,6 +9,9 @@
 #import "EditViewController.h"
 #import "EditView.h"
 
+#import <CoreServices/UTCoreTypes.h>
+#import <AVFoundation/AVAssetExportSession.h>
+
 @implementation EditViewController
 
 
@@ -27,7 +30,7 @@
 - (void)viewDidLoad {
   [super viewDidLoad];
   self.navigationItem.leftBarButtonItem = [[[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStylePlain target:self action:@selector(doneEditing)] autorelease];
-  self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithTitle:([(EditView *)self.view isImage] ? @"Clear image" : @"Image...") style:UIBarButtonItemStylePlain target:self action:@selector(chooseImage)] autorelease];
+  self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithTitle:([(EditView *)self.view isImage] ? @"Clear image" : [(EditView *)self.view isVideo] ? @"Clear video" : @"Image...") style:UIBarButtonItemStylePlain target:self action:@selector(chooseImage)] autorelease];
 }
 
 
@@ -54,16 +57,22 @@
 }
 -(void)chooseImage
 {  
-  if ([(EditView *)self.view isImage])
+  if ([(EditView *)self.view isImage] || [(EditView *)self.view isVideo])
   {
-    [(EditView *)self.view setImage:nil];
+    [(EditView *)self.view setImage:nil video:nil];
     self.navigationItem.rightBarButtonItem.title = @"Image...";
   }
   else 
   {
     UIImagePickerController * picker = [[UIImagePickerController alloc] init];
     picker.delegate = self;
-		picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    picker.mediaTypes = @[(NSString *)kUTTypeMovie, (NSString *)kUTTypeImage];
+
+    if (m_rvc->m_vidq > 1)
+      picker.videoExportPreset = AVAssetExportPresetLowQuality;
+    else if (m_rvc->m_vidq > 0)
+      picker.videoExportPreset = AVAssetExportPresetMediumQuality;
     [self presentModalViewController:picker animated:YES];
     [picker release];
 
@@ -82,13 +91,24 @@
   if (img)
   {
     ImageFieldRec *r = [[ImageFieldRec alloc] initWithImage:img];
-    [(EditView *)self.view setImage:r];
+    [(EditView *)self.view setImage:r video:nil];
     [r release];
     self.navigationItem.rightBarButtonItem.title = @"Clear image";
   }
-  else 
+  else if ([[info objectForKey:UIImagePickerControllerMediaType] isEqualToString:(NSString *)kUTTypeMovie])
   {
-    [(EditView *)self.view setImage:nil];
+    NSURL *url = (NSURL*)[info objectForKey:UIImagePickerControllerMediaURL];
+    if (url)
+    {
+      [(EditView *)self.view setImage:nil video:url];
+      self.navigationItem.rightBarButtonItem.title = @"Clear video";
+    }
+    else
+      [(EditView *)self.view setImage:nil video:nil];
+  }
+  else
+  {
+    [(EditView *)self.view setImage:nil video:nil];
     self.navigationItem.rightBarButtonItem.title = @"Image...";
   }
 	[picker dismissModalViewControllerAnimated:YES];
